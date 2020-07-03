@@ -24,3 +24,4 @@ Start everything via `docker-compose up -d --build` (build is optional, but nece
 
 You'll need to set up sonarr/radarr to understand the path that they exist in, ie:
 
+![sonarr config](sonarr-screenshot.png)
