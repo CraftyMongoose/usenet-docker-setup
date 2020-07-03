@@ -1,0 +1,73 @@
+---
+version: "3.8"
+services:
+  sabnzbd:
+    image: linuxserver/sabnzbd
+    container_name: sabnzbd
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - sabnzbd-config:/config
+      - thunderdome-downloads:/downloads
+      - thunderdome-temp:/incomplete-downloads
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+  sonarr:
+    image: mdhiggins/sonarr-sma
+    container_name: sonarr
+    depends_on:
+      - sabnzbd
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - sonarr-config:/config
+      - sma-config:/usr/local/sma/config
+      - thunderdome-tv:/tv
+      - thunderdome-downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+  radarr:
+    image: mdhiggins/radarr-sma
+    container_name: radarr
+    depends_on:
+      - sabnzbd
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - radarr-config:/config
+      - sma-config:/usr/local/sma/config
+      - thunderdome-movies:/movies
+      - thunderdome-downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  apache-proxy:
+    build:
+      context: ./apache-proxy
+    container_name: apache-proxy
+    ports:
+      - 8081:80
+    restart: unless-stopped
+volumes:
+  sabnzbd-config:
+  sonarr-config:
+  sma-config:
+  radarr-config:
+  thunderdome-temp:
+    external:
+      name: thunderdome-temp
+  thunderdome-downloads:
+    external:
+      name: thunderdome-downloads
+  thunderdome-tv:
+    external:
+      name: thunderdome-tv
+  thunderdome-movies:
+    external:
+      name: thunderdome-movies
